@@ -1,0 +1,54 @@
+// Place all the styles related to the Repositories controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+.repo {
+  position:relative;
+  border-top:1px solid gray;
+  padding: 30px 0;
+
+}
+
+.info {
+  float:right;
+  color:gray;
+  a{
+    color:gray;
+    font-size:.8rem;
+    font-weight:600;
+    padding-right:.3rem;
+  }
+}
+
+h3 {
+  font-size:1.3rem;
+  font-weight:600;
+
+}
+
+p{
+  color:#888;
+  font-size:.9rem;
+}
+
+.repo-list {
+  float:right;
+  width:66%;
+
+}
+
+.profile {
+  float:left;
+  width:29%;
+  img {
+    border-radius: 15px;
+
+  }
+}
+h2 {
+  color:#777;
+  font-size:1.3rem;
+  font-weight:300;
+  border-bottom:1px solid gray;
+  padding-bottom:1.3rem;
+}

@@ -1,0 +1,24 @@
+<div class="profile">
+  <%= image_tag @profile.avatar_url %>
+  <h2>
+    <%= @profile.username %>
+  </h2>
+  <p>
+    <%= @profile.location %>
+  </p>
+  <p>
+    <%= @profile.company_name %>
+  </p>
+  <p>
+    Followers: <%= @profile.number_of_followers %>
+  </p>
+  <p>
+    Following: <%= @profile.number_following %>
+  </p>
+</div>
+
+<div class="repo-list">
+  <% @repositories.each do |repo| %>
+    <%= render "repo", :repo => repo %>
+  <% end %>
+</div>
