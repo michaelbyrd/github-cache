@@ -14,11 +14,11 @@
   </div>
 
   <h3>
-    <%= link_to repository.name, repository.url %>
+    <%= link_to repository.name, repository.html_url %>
   </h3>
 
   <p>
-    Updated <%= distance_of_time_in_words_to_now(repository.updated_at) %> ago
+    Updated <%= distance_of_time_in_words_to_now(repository.github_updated_at) %> ago
   </p>
 
 </div>

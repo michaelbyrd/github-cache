@@ -4,7 +4,7 @@ class RepositoriesController < ApplicationController
   end
 
   def show
-    @profile = UpdatedProfile.new(params[:username]).info
+    @profile = Profile.get_updated_profile(params[:username])
   end
 
 end

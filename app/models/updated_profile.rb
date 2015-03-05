@@ -1,22 +1,17 @@
 class UpdatedProfile
   def initialize(username)
     @username = username
+    @profile = profile
+    repositories
   end
 
   def info
-    return profile
+    return @profile
   end
 
-  def profile
-    profile = Profile.find_by(username: @username)
-    if profile
-
-    else
-      Profile.create_from_username(@username)
-  end
 
   def repositories
-
+    Repository.update_from_api(@username) if @profile.update_repos?
   end
 
 end

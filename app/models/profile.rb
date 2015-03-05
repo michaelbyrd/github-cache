@@ -1,8 +1,37 @@
 class Profile < ActiveRecord::Base
   has_many :repositories
 
+  def self.get_updated_profile(username)
+    profile = Profile.find_by(username: username)
+    if profile
+      if profile.update?
+        profile.update_from_api
+        Repository.create_from_api(username)
+      elsif profile.update_repos?
+        profile.update_repos_from_api
+      end
+    else
+      Profile.create_from_api(username)
+      Repository.create_from_api(username)
+    end
+
+
+    return Profile.find_by(username: username)
+  end
+
+
   def update?
-    (DateTime.now.to_i - github_updated_at.to_i) > 1.day
+    (DateTime.now.to_i - updated_at.to_i) > 1.day
+  end
+
+  def update_repos?
+    self.repositories.any? {|r| r.update? }
+  end
+
+  def update_repos_from_api
+    self.repositories.each do |r|
+      r.update_from_api if r.update?
+    end
   end
 
   def update_from_api
@@ -24,7 +53,7 @@ class Profile < ActiveRecord::Base
     )
   end
 
-  def self.create_from_username(username)
+  def self.create_from_api(username)
     response = HTTParty.get(
         "https://api.github.com/users/#{username}",
         :headers => {"Authorization" => "token #{ENV['GITHUB_TOKEN']}",
@@ -46,6 +75,4 @@ class Profile < ActiveRecord::Base
       raise
     end
   end
-
-
 end
