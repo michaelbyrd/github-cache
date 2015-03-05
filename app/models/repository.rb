@@ -4,12 +4,15 @@ class Repository < ActiveRecord::Base
   validates_uniqueness_of :url, presence: :true
   validates_uniqueness_of :github_id
 
-  def repo_response
-    HTTParty.get( self.url, HEADER )
-  end
+  HEADER = {:headers => {"Authorization" => "token #{ENV['GITHUB_TOKEN']}",
+               "User-Agent" => "anyone"}}
 
   def update?
     (DateTime.now.to_i - updated_at.to_i) > 2.hours
+  end
+
+  def repo_response
+    HTTParty.get( self.url, HEADER )
   end
 
   def update_from_api
