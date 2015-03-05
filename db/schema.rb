@@ -14,7 +14,6 @@
 ActiveRecord::Schema.define(version: 20150304213415) do
 
   create_table "profiles", force: :cascade do |t|
-    t.text     "body"
     t.string   "username"
     t.string   "avatar_url"
     t.string   "location"
@@ -22,6 +21,7 @@ ActiveRecord::Schema.define(version: 20150304213415) do
     t.integer  "number_of_followers"
     t.integer  "number_following"
     t.datetime "github_updated_at"
+    t.string   "repos_url"
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
   end

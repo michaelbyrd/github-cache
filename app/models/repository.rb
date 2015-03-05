@@ -1,9 +1,13 @@
 class Repository < ActiveRecord::Base
   belongs_to :profile
-  validates_uniqueness_of :name, :scope => :profile_id
+  # validates_uniqueness_of :name, :scope => :profile_id
+  validates :name, presence: :true
+  validates_uniqueness_of :url, presence: :true
+  validates_uniqueness_of :github_id
 
   def update?
     (DateTime.now.to_i - updated_at.to_i) > 2.hours
+    true
   end
 
   def update_from_api
@@ -28,17 +32,13 @@ class Repository < ActiveRecord::Base
   end
 
 
-  def self.create_from_api(username)
-    response = HTTParty.get(
-          "https://api.github.com/users/#{username}/repos",
-          :headers => {"Authorization" => "token #{ENV['GITHUB_TOKEN']}",
-                       "User-Agent" => "anyone"
-                      }
-      )
+  def self.create_from_api(profile)
+    response = profile.repos_response
     response.each do |hash|
       repo = Repository.find_by(github_id: hash["id"])
       if repo && repo.update?
         repo.update(
+          name: hash["name"],
           url: hash["url"],
           html_url: hash["html_url"],
           number_of_forks: hash["forks_count"].to_i,
@@ -53,9 +53,7 @@ class Repository < ActiveRecord::Base
   end
 
   def self.create_from_hash(hash)
-    profile = Profile.find_by(username: hash["owner"]["login"]) ||
-      Profile.create_from_username(hash["owner"]["login"])
-
+    profile = Profile.find_by(username: hash["owner"]["login"])
     Repository.create(
       profile: profile,
       name: hash["name"],
