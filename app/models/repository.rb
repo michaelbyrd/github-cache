@@ -4,14 +4,12 @@ class Repository < ActiveRecord::Base
   validates_uniqueness_of :url, presence: :true
   validates_uniqueness_of :github_id
 
-  def update?
-    (DateTime.now.to_i - updated_at.to_i) > 2.hours
-    true
+  def repo_response
+    HTTParty.get( self.url, HEADER )
   end
 
   def update_from_api
-    response = HTTParty.get( self.url, HEADER )
-
+    response = repo_response
     if response["message"] =="Not Found"
       self.destroy!
     else
@@ -27,24 +25,28 @@ class Repository < ActiveRecord::Base
     end
   end
 
-  def self.create_from_api(profile)
+  def self.create_or_update_from_api(profile)
     response = profile.repos_response
     response.each do |hash|
       repo = Repository.find_by(github_id: hash["id"])
       if repo && repo.update?
-        repo.update(
-          name: hash["name"],
-          url: hash["url"],
-          html_url: hash["html_url"],
-          number_of_forks: hash["forks_count"].to_i,
-          number_of_stars: hash["stargazers_count"].to_i,
-          github_updated_at: hash["updated_at"].to_datetime,
-          language: hash["language"]
-        )
+        repo.update_from_hash(hash)
       else
         Repository.create_from_hash(hash)
       end
     end
+  end
+
+  def update_from_hash(hash)
+    self.update(
+      name: hash["name"],
+      url: hash["url"],
+      html_url: hash["html_url"],
+      number_of_forks: hash["forks_count"].to_i,
+      number_of_stars: hash["stargazers_count"].to_i,
+      github_updated_at: hash["updated_at"].to_datetime,
+      language: hash["language"]
+    )
   end
 
   def self.create_from_hash(hash)
@@ -61,4 +63,9 @@ class Repository < ActiveRecord::Base
       language: hash["language"]
     )
   end
+
+  def update?
+    (DateTime.now.to_i - updated_at.to_i) > 2.hours
+  end
+
 end

@@ -15,30 +15,9 @@ class Profile < ActiveRecord::Base
 
   def self.get_updated_profile(username)
     profile = Profile.find_by(username: username) ||
-      Profile.create_from_api(username)
-    if profile.update?
-      profile.update_from_api
-      Repository.create_from_api(profile)
-    elsif profile.update_repos?
-      profile.update_repos_from_api
-    end
-    return profile
-  end
+              Profile.create_from_api(username)
 
-
-  def update?
-    (DateTime.now.to_i - updated_at.to_i) > 1.day
-    true
-  end
-
-  def update_repos?
-    self.repositories.any? {|r| r.update? }
-  end
-
-  def update_repos_from_api
-    self.repositories.each do |r|
-      r.update_from_api if r.update?
-    end
+    profile.update_if_needed
   end
 
   def update_from_api
@@ -69,10 +48,36 @@ class Profile < ActiveRecord::Base
         number_following: response["following"].to_i,
         github_updated_at: response["updated_at"].to_datetime
       )
-      Repository.create_from_api(profile)
+      Repository.create_or_update_from_api(profile)
       profile
     else
       raise
     end
   end
+
+
+  def update_if_needed
+    if self.update?
+      self.update_from_api
+      Repository.create_or_update_from_api(self)
+    elsif self.update_repos?
+      self.update_repos_from_api
+    end
+    self
+  end
+
+  def update?
+    (DateTime.now.to_i - updated_at.to_i) > 1.day
+  end
+
+  def update_repos?
+    self.repositories.any? {|r| r.update? }
+  end
+
+  def update_repos_from_api
+    self.repositories.each do |r|
+      r.update_from_api if r.update?
+    end
+  end
+
 end
