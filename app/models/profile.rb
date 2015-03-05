@@ -19,7 +19,7 @@ class Profile < ActiveRecord::Base
   def self.get_updated_profile(username)
     profile = Profile.find_by(username: username) ||
               Profile.create_from_api(username)
-    profile.update_if_needed
+    profile.update_if_needed if profile
   end
 
   def self.create_from_api(username)
