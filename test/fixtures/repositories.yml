@@ -1,0 +1,19 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  profile_id: 
+  name: MyString
+  url: MyString
+  number_of_forks: 1
+  number_of_stars: 1
+  github_updated_at: 2015-03-04 16:34:15
+  language: MyString
+
+two:
+  profile_id: 
+  name: MyString
+  url: MyString
+  number_of_forks: 1
+  number_of_stars: 1
+  github_updated_at: 2015-03-04 16:34:15
+  language: MyString

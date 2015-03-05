@@ -18,7 +18,5 @@
 </div>
 
 <div class="repo-list">
-  <% @repositories.each do |repo| %>
-    <%= render "repo", :repo => repo %>
-  <% end %>
+  <%= render @profile.repositories %>
 </div>

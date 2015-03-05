@@ -1,0 +1,24 @@
+<div class="repo">
+  <div class="info">
+    <a>
+      <%= repository.language %>
+    </a>
+    <a>
+      <i class="fa fa-star-o"></i>
+      <%= repository.number_of_stars %>
+    </a>
+    <a>
+      <i class="fa fa-code-fork"></i>
+      <%= repository.number_of_forks %>
+    </a>
+  </div>
+
+  <h3>
+    <%= link_to repository.name, repository.url %>
+  </h3>
+
+  <p>
+    Updated <%= distance_of_time_in_words_to_now(repository.updated_at) %> ago
+  </p>
+
+</div>

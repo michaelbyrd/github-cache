@@ -11,16 +11,33 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150304212533) do
+ActiveRecord::Schema.define(version: 20150304213415) do
 
   create_table "profiles", force: :cascade do |t|
-    t.text    "body"
-    t.string  "username"
-    t.string  "avatar_url"
-    t.string  "location"
-    t.string  "company_name"
-    t.integer "number_of_followers"
-    t.integer "number_following"
+    t.text     "body"
+    t.string   "username"
+    t.string   "avatar_url"
+    t.string   "location"
+    t.string   "company_name"
+    t.integer  "number_of_followers"
+    t.integer  "number_following"
+    t.datetime "github_updated_at"
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
   end
+
+  create_table "repositories", force: :cascade do |t|
+    t.integer  "profile_id"
+    t.string   "name"
+    t.string   "url"
+    t.integer  "number_of_forks"
+    t.integer  "number_of_stars"
+    t.datetime "github_updated_at"
+    t.string   "language"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+  end
+
+  add_index "repositories", ["profile_id"], name: "index_repositories_on_profile_id"
 
 end

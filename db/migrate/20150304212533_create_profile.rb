@@ -8,6 +8,9 @@ class CreateProfile < ActiveRecord::Migration
       t.string :company_name
       t.integer :number_of_followers
       t.integer :number_following
+      t.datetime :github_updated_at
+
+      t.timestamps null: false
     end
   end
 end
