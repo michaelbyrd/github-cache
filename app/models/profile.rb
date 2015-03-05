@@ -51,14 +51,9 @@ class Profile < ActiveRecord::Base
     if self.update?
       self.update_from_api
       Repository.create_or_update_from_api(self)
-    elsif self.update_repos?
-      self.update_repos_from_api
     end
+    self.update_repos_from_api
     self
-  end
-
-  def update_repos?
-    self.repositories.any? {|r| r.update? }
   end
 
   def update_repos_from_api
