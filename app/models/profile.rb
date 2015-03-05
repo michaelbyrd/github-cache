@@ -1,27 +1,27 @@
 class Profile < ActiveRecord::Base
   has_many :repositories
 
-
+  HEADER = {:headers => {"Authorization" => "token #{ENV['GITHUB_TOKEN']}",
+               "User-Agent" => "anyone"}}
 
   def repos_response
-    HTTParty.get(self.repos_url,
-          :headers => {"Authorization" => "token #{ENV['GITHUB_TOKEN']}",
-                       "User-Agent" => "anyone"})
+    HTTParty.get(self.repos_url, HEADER)
   end
-  def self.get_updated_profile(username)
-    profile = Profile.find_by(username: username)
-    if profile
-      if profile.update?
-        profile.update_from_api
-        Repository.create_from_api(profile)
-      elsif profile.update_repos?
-        profile.update_repos_from_api
-      end
-    else
-      profile = Profile.create_from_api(username)
-      Repository.create_from_api(profile)
-    end
 
+  def profile_response
+    HTTParty.get("https://api.github.com/users/#{self.username}", HEADER)
+  end
+
+
+  def self.get_updated_profile(username)
+    profile = Profile.find_by(username: username) ||
+      Profile.create_from_api(username)
+    if profile.update?
+      profile.update_from_api
+      Repository.create_from_api(profile)
+    elsif profile.update_repos?
+      profile.update_repos_from_api
+    end
     return profile
   end
 
@@ -42,14 +42,11 @@ class Profile < ActiveRecord::Base
   end
 
   def update_from_api
-    response = HTTParty.get(
-        "https://api.github.com/users/#{self.username}",
-        :headers => {"Authorization" => "token #{ENV['GITHUB_TOKEN']}",
-                     "User-Agent" => "anyone"
-                    }
-    )
+    response = profile_response
+
     self.update(
       username: username,
+      repos_url: response["repos_url"],
       avatar_url: response["avatar_url"],
       location: response["location"],
       company_name: response["company"],
@@ -60,14 +57,9 @@ class Profile < ActiveRecord::Base
   end
 
   def self.create_from_api(username)
-    response = HTTParty.get(
-        "https://api.github.com/users/#{username}",
-        :headers => {"Authorization" => "token #{ENV['GITHUB_TOKEN']}",
-                     "User-Agent" => "anyone"
-                    }
-    )
+    response = HTTParty.get("https://api.github.com/users/#{username}", HEADER)
     if response["login"] == username
-      Profile.create(
+      profile = Profile.create(
         username: username,
         repos_url: response["repos_url"],
         avatar_url: response["avatar_url"],
@@ -77,6 +69,8 @@ class Profile < ActiveRecord::Base
         number_following: response["following"].to_i,
         github_updated_at: response["updated_at"].to_datetime
       )
+      Repository.create_from_api(profile)
+      profile
     else
       raise
     end

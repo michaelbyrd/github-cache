@@ -1,6 +1,5 @@
 class Repository < ActiveRecord::Base
   belongs_to :profile
-  # validates_uniqueness_of :name, :scope => :profile_id
   validates :name, presence: :true
   validates_uniqueness_of :url, presence: :true
   validates_uniqueness_of :github_id
@@ -11,26 +10,22 @@ class Repository < ActiveRecord::Base
   end
 
   def update_from_api
-    response = HTTParty.get(
-        self.url,
-        :headers => {"Authorization" => "token #{ENV['GITHUB_TOKEN']}",
-                     "User-Agent" => "anyone"
-                    }
-    )
+    response = HTTParty.get( self.url, HEADER )
+
     if response["message"] =="Not Found"
       self.destroy!
-      return true
+    else
+      self.update(
+        name: response["name"],
+        url: response["url"],
+        html_url: response["html_url"],
+        number_of_forks: response["forks_count"].to_i,
+        number_of_stars: response["stargazers_count"].to_i,
+        github_updated_at: response["updated_at"].to_datetime,
+        language: response["language"]
+      )
     end
-    self.update(
-      url: response["url"],
-      html_url: response["html_url"],
-      number_of_forks: response["forks_count"].to_i,
-      number_of_stars: response["stargazers_count"].to_i,
-      github_updated_at: response["updated_at"].to_datetime,
-      language: response["language"]
-    )
   end
-
 
   def self.create_from_api(profile)
     response = profile.repos_response
